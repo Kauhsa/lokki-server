@@ -1,8 +1,8 @@
 language: node_js
-install:
-  - "sudo pip install http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz"
+before_install:
+  - "npm install -g eslint"
 script:
-  - "./run-js-lint.js"
+  - "eslint ."
   - "node unittest-runner.js"
 services:
   - redis-server
