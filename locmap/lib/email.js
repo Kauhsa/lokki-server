@@ -18,17 +18,17 @@ var LocMapEmail = function() {
 
     this._sendEmail = function(emailObj, callback) {
         var inProduction = process.env.PORT || false;
-        console.log("sendEmail, production: " + inProduction);
+        console.log('sendEmail, production: ' + inProduction);
         if (inProduction) {
-            console.log("In production, using sendgrid to send email.");
-            var sendgrid = require("sendgrid")(
+            console.log('In production, using sendgrid to send email.');
+            var sendgrid = require('sendgrid')(
                process.env.SENDGRID_USERNAME,
                process.env.SENDGRID_PASSWORD
             );
             var email = new sendgrid.Email(emailObj);
             sendgrid.send(email, function(err, json) {
                 if (err) {
-                    console.log("Error sending signup email to " + emailObj.to + " : " + err);
+                    console.log('Error sending signup email to ' + emailObj.to + ' : ' + err);
                     console.error(err);
                     callback(false);
                 } else {
@@ -36,7 +36,7 @@ var LocMapEmail = function() {
                 }
             });
         } else {
-            console.log("Unittesting, saving email locally.");
+            console.log('Unittesting, saving email locally.');
             this.emails.push(emailObj);
             callback(true);
         }
@@ -45,8 +45,8 @@ var LocMapEmail = function() {
     this.sendSignupMail = function(targetEmail, langCode, callback) {
         var that = this;
         var lang = LocMapCommon.verifyLangCode(langCode);
-        var subject = i18n.getLocalizedString(lang, "signup.userEmailSubject");
-        var messageText = i18n.getLocalizedString(lang, "signup.userEmailText");
+        var subject = i18n.getLocalizedString(lang, 'signup.userEmailSubject');
+        var messageText = i18n.getLocalizedString(lang, 'signup.userEmailText');
 
         var emailObj = {
             to: targetEmail,
@@ -61,8 +61,8 @@ var LocMapEmail = function() {
         var that = this;
         //console.log("sendInviteEmail with " + targetEmail + " " + inviterEmail + " " + langCode);
         var lang = LocMapCommon.verifyLangCode(langCode);
-        var subject = i18n.getLocalizedString(lang, "invite.userInvitedToLokkiEmailSubject");
-        var messageText = i18n.getLocalizedString(lang, "invite.userInvitedToLokkiEmailText", "targetUser", targetEmail, "senderUser", inviterEmail);
+        var subject = i18n.getLocalizedString(lang, 'invite.userInvitedToLokkiEmailSubject');
+        var messageText = i18n.getLocalizedString(lang, 'invite.userInvitedToLokkiEmailText', 'targetUser', targetEmail, 'senderUser', inviterEmail);
         //var finalText = LocMapCommon.messageTexts.inviteEmailText1 + targetEmail +
         //    LocMapCommon.messageTexts.inviteEmailText2 + inviterEmail + LocMapCommon.messageTexts.inviteEmailText3;
         var emailObj = {
@@ -84,8 +84,8 @@ var LocMapEmail = function() {
     this.sendResetEmail = function(targetEmail, resetLink, langCode, callback) {
         var that = this;
         var lang = LocMapCommon.verifyLangCode(langCode);
-        var subject = i18n.getLocalizedString(lang, "reset.emailSubject");
-        var messageText = i18n.getLocalizedString(lang, "reset.emailText", "resetLink", resetLink);
+        var subject = i18n.getLocalizedString(lang, 'reset.emailSubject');
+        var messageText = i18n.getLocalizedString(lang, 'reset.emailText', 'resetLink', resetLink);
          var emailObj = {
             to: targetEmail,
             from: noReplyAddress,

@@ -5,14 +5,14 @@ See LICENSE for details
 /*
  Test file: User API methods
  */
-var helpers = require("../../test_helpers/test_helpers");
-var lmHelpers = require("../test_helpers/locMapHelpers");
+var helpers = require('../../test_helpers/test_helpers');
+var lmHelpers = require('../test_helpers/locMapHelpers');
 
 var locMapRESTAPI = require('../lib/locMapRESTAPI');
 LocMapRestApi = new locMapRESTAPI();
 
-var AppleNotification = require("../../lib/appleNotificationService");
-var LocMapGoogleCloudMessagingService = require("../lib/locMapGoogleCloudMessagingService");
+var AppleNotification = require('../../lib/appleNotificationService');
+var LocMapGoogleCloudMessagingService = require('../lib/locMapGoogleCloudMessagingService');
 var apn = new AppleNotification();
 
 var pushedNotifications = [];// data from mocked pushNotification in format: [{token: token, text: text}, {token2: token2, text2: text2}]
@@ -21,7 +21,7 @@ var pushedNotificationsGcm = [];
 // mock it to verify that we send notifications
 AppleNotification.prototype.pushNotification = function(deviceToken, notificationText, _payload) {
     var notif = {
-        token:deviceToken,
+        token: deviceToken,
         text: notificationText
     };
     if (_payload) {
@@ -31,7 +31,7 @@ AppleNotification.prototype.pushNotification = function(deviceToken, notificatio
 };
 LocMapGoogleCloudMessagingService.prototype.pushNotification = function(deviceToken, notificationText, _payload) {
     var notif = {
-        token:deviceToken,
+        token: deviceToken,
         text: notificationText
     };
     if (_payload) {
@@ -40,16 +40,16 @@ LocMapGoogleCloudMessagingService.prototype.pushNotification = function(deviceTo
     pushedNotificationsGcm.push(notif);
 };
 
-var testUserEmail = "user1@example.com.invalid";
-var testUserEmail2 = "user2@example.com.invalid";
-var testUserEmail3 = "user3@example.com.invalid";
+var testUserEmail = 'user1@example.com.invalid';
+var testUserEmail2 = 'user2@example.com.invalid';
+var testUserEmail3 = 'user3@example.com.invalid';
 
 module.exports = {
-    setUp: function (callback) {
+    setUp: function(callback) {
         pushedNotifications = [];
         pushedNotificationsGcm = [];
         var dbSetup = require('../../lib/dbSetup');
-        dbSetup(function () {
+        dbSetup(function() {
             callback();
         });
     },

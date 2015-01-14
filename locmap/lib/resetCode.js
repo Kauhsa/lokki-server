@@ -14,15 +14,15 @@ var LocMapConfig = require('./locMapConfig');
 var locMapCommon = require('./locMapCommon');
 var LocMapCommon = new locMapCommon();
 
-var modelPrefix = "locmapresetcode:"
+var modelPrefix = 'locmapresetcode:';
 
 // Not an actual model to make usage of this simpler.
 var ResetCode = function() {
     // Returns reset code data if successful, or number if failed.
     // Reset code data: {resetCode: 'abcdef1234', userId: 'theid'}
-    this.getResetCodeData = function (resetCode, callback) {
+    this.getResetCodeData = function(resetCode, callback) {
         var that = this;
-        db.get(modelPrefix + resetCode, function (error, result) {
+        db.get(modelPrefix + resetCode, function(error, result) {
             if (result) {
                 result = that._deserializeData(result);
             } else {
@@ -49,9 +49,9 @@ var ResetCode = function() {
         db.setex(modelPrefix + resetCode, LocMapConfig.resetCodeTimeout, serializedData, function(error, result) {
             if (error) {
                 result = 400;
-                console.log("Error storing user " + userId +  " reset code");
+                console.log('Error storing user ' + userId + ' reset code');
             } else {
-                result = resetCode
+                result = resetCode;
             }
             callback(result);
         });
@@ -65,7 +65,7 @@ var ResetCode = function() {
         return data;
     };
 
-    this._serializeData = function (data) {
+    this._serializeData = function(data) {
         var serializedData = '';
         try {
             serializedData = JSON.stringify(data);

@@ -20,15 +20,15 @@ var usesAuthentication = function(req, res, next) {
             req.cachedUserObjFromAuthorization = userObj;
             next();
         } else {
-            res.send(authStatus, message)
+            res.send(authStatus, message);
         }
     });
 };
 
 var usesAdminAuthentication = function(req, res, next) {
     // only 358405297258 can access it
-    if (req.params.userId !== "358405297258") {
-        return res.send(404, "Access denied");
+    if (req.params.userId !== '358405297258') {
+        return res.send(404, 'Access denied');
     } else {
         next();//hack yet to enable access through browser
         return;
@@ -39,7 +39,7 @@ var usesAdminAuthentication = function(req, res, next) {
             req.cachedUserObjFromAuthorization = userObj;
             next();
         } else {
-            res.send(authStatus, message)
+            res.send(authStatus, message);
         }
     });
 };
@@ -58,7 +58,7 @@ module.exports = function(app) {
     // Update user location
     app.post('/api/locmap/v1/user/:userId/location', usesAuthentication, function(req, res) {
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.changeUserLocation(req.params.userId, cache, req.body, function(status, result) {
             res.send(status, result);
@@ -68,7 +68,7 @@ module.exports = function(app) {
     // Allow another to see current users position
     app.post('/api/locmap/v1/user/:userId/allow', usesAuthentication, function(req, res) {
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.allowToSeeUserLocation(req.params.userId, cache, req.body, function(status, result) {
             res.send(status, result);
@@ -78,7 +78,7 @@ module.exports = function(app) {
     // Stop another user from seeing current users position
     app.del('/api/locmap/v1/user/:userId/allow/:targetUserId', usesAuthentication, function(req, res) {
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.denyToSeeUserLocation(req.params.userId, cache, req.params.targetUserId, function(status, result) {
             res.send(status, result);
@@ -88,7 +88,7 @@ module.exports = function(app) {
     // Toggle user global visibility
     app.put('/api/locmap/v1/user/:userId/visibility', usesAuthentication, function(req, res) {
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.setUserVisibility(req.params.userId, cache, req.body, function(status, result) {
             res.send(status, result);
@@ -98,7 +98,7 @@ module.exports = function(app) {
     // Set user language.
     app.put('/api/locmap/v1/user/:userId/language', usesAuthentication, function(req, res) {
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.setUserLanguage(req.params.userId, cache, req.body, function(status, result) {
             res.send(status, result);
@@ -107,7 +107,7 @@ module.exports = function(app) {
 
     // Set user's ios remote notification token.
     // apnToken must be in body.apnToken. if body.apnToken is undefined - stops sending notifications
-    app.post('/api/locmap/v1/user/:userId/apnToken', usesAuthentication, function (req, res) {
+    app.post('/api/locmap/v1/user/:userId/apnToken', usesAuthentication, function(req, res) {
         locMapRestApi.setUserApnToken(req.params.userId, req.body.apnToken, function(status, result) {
             res.send(status, result);
         });
@@ -115,7 +115,7 @@ module.exports = function(app) {
 
     // Set user's google android remote notification token.
     // gcmToken must be in body.gcmToken. if body.gcmToken is undefined - stops sending notifications
-    app.post('/api/locmap/v1/user/:userId/gcmToken', usesAuthentication, function (req, res) {
+    app.post('/api/locmap/v1/user/:userId/gcmToken', usesAuthentication, function(req, res) {
         locMapRestApi.setUserGcmToken(req.params.userId, req.body.gcmToken, function(status, result) {
             res.send(status, result);
         });
@@ -123,7 +123,7 @@ module.exports = function(app) {
 
     // Set user's wp8 remote notification token.
     // wp8Url must be in body.wp8. if body.wp8 is undefined - stops sending notifications to wp8
-    app.post('/api/locmap/v1/user/:userId/wp8NotificationURL', usesAuthentication, function (req, res) {
+    app.post('/api/locmap/v1/user/:userId/wp8NotificationURL', usesAuthentication, function(req, res) {
         locMapRestApi.setUserWP8Token(req.params.userId, req.body.wp8, function(status, result) {
             res.send(status, result);
         });
@@ -133,7 +133,7 @@ module.exports = function(app) {
     // current global visibility status
     app.get('/api/locmap/v1/user/:userId/dashboard', usesAuthentication, function(req, res) {
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.getUserDashboard(req.params.userId, cache, function(status, result) {
             //console.log("DEBUG dashboard reply status: " + status + " contents: " + JSON.stringify(result));
@@ -145,7 +145,7 @@ module.exports = function(app) {
     app.post('/api/locmap/v1/user/:userId/update/locations', usesAuthentication, function(req, res) {
         //console.log("User " + req.params.userId + " requested location updates.");
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.requestUserLocationUpdates(req.params.userId, function(status, result) {
             res.send(status, result);
@@ -156,7 +156,7 @@ module.exports = function(app) {
     // POST data contents: {osType: 'android', osVersion: '4.4.0-Kitkat SDK whatever', lokkiVersion: '1.2.3', reportTitle: 'Lokki crash NullpointerException', reportData: 'report data.'}
     // osType must be one of: android/ios/wp, other information is freeform.
     app.post('/api/locmap/v1/crashReport/:userId', usesAuthentication, function(req, res) {
-        console.log("Crashreport storage called.");
+        console.log('Crashreport storage called.');
         locMapRestApi.storeCrashReport(req.params.userId, req.body, function(status, result) {
             res.send(status, result);
         });
@@ -174,13 +174,13 @@ module.exports = function(app) {
     app.get('/reset/:resetId', function(req, res) {
         locMapRestApi.resetUserAccountToRecoveryMode(req.params.resetId, function(status, result) {
             // Remove forcing content to load as a file.
-            res.removeHeader("Content-Disposition");
+            res.removeHeader('Content-Disposition');
             // Make sure response is provided as html.
-            res.setHeader("Content-Type", "text/html; charset=utf-8");
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
             if (status == 200) {
                 res.send(200, result);
             } else {
-                res.send(200, "<html>An error occurred, please try signing in again to get a new reset email.</html>");
+                res.send(200, '<html>An error occurred, please try signing in again to get a new reset email.</html>');
             }
         });
     });
@@ -192,7 +192,7 @@ module.exports = function(app) {
     // If place limit reached, returns 403
     app.post('/api/locmap/v1/user/:userId/place', usesAuthentication, function(req, res) {
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.addUserPlace(req.params.userId, cache, req.body, function(status, result) {
             res.send(status, result);
@@ -205,7 +205,7 @@ module.exports = function(app) {
     // If place data is invalid, returns 400
     app.put('/api/locmap/v1/user/:userId/place/:placeId', usesAuthentication, function(req, res) {
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.modifyUserPlace(req.params.userId, cache, req.params.placeId, req.body, function(status, result) {
             res.send(status, result);
@@ -216,7 +216,7 @@ module.exports = function(app) {
     // Returns 200
     app.del('/api/locmap/v1/user/:userId/place/:placeId', usesAuthentication, function(req, res) {
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.removeUserPlace(req.params.userId, cache, req.params.placeId, function(status, result) {
             res.send(status, result);
@@ -227,7 +227,7 @@ module.exports = function(app) {
     // Returns: 200, {placeId: {name: 'aa', lat: 1, lon: 2, rad: 20, img: 'internalpic1.png'}, placeId2: ... }
     app.get('/api/locmap/v1/user/:userId/places', usesAuthentication, function(req, res) {
         var cache = new Cache();
-        cache.cache("locmapuser", req.params.userId, req.cachedUserObjFromAuthorization);
+        cache.cache('locmapuser', req.params.userId, req.cachedUserObjFromAuthorization);
 
         locMapRestApi.getUserPlaces(req.params.userId, cache, function(status, result) {
             res.send(status, result);
@@ -239,7 +239,7 @@ module.exports = function(app) {
     app.get('/api/locmap/v1/admin/:userId/crashReport/:osType/:year/:month', usesAdminAuthentication, function(req, res) {
         locMapAdminApi.adminGetCrashReports(req.params.osType, req.params.year, req.params.month, function(status, result) {
             // Override the extra JSON security headers for easier browsing.
-            res.removeHeader("Content-Disposition");
+            res.removeHeader('Content-Disposition');
             res.send(status, result);
         });
     });
@@ -247,7 +247,7 @@ module.exports = function(app) {
     // Put account into recovery mode. Limited to hardcoded set of development accounts.
     // POST contents: email string JSONized.
     app.post('/api/locmap/v1/admin/:userId/accountRecovery', usesAdminAuthentication, function(req, res) {
-        locMapAdminApi.adminSetAccountToRecoveryMode(req.body, function(status,result) {
+        locMapAdminApi.adminSetAccountToRecoveryMode(req.body, function(status, result) {
             res.send(status, result);
         });
     });
@@ -257,11 +257,11 @@ module.exports = function(app) {
         //var heapd = new memwatch.HeapDiff();
         locMapAdminApi.adminGetStats(function(status, result) {
             // Override the extra JSON security headers for easier browsing.
-            res.removeHeader("Content-Disposition");
+            res.removeHeader('Content-Disposition');
             //var diff = heapd.end();
             //console.log("DEBUG: Heap difference after userstats: " + JSON.stringify(diff));
             res.send(status, result);
-        })
+        });
     });
 
 };

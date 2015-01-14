@@ -5,7 +5,7 @@ See LICENSE for details
 /*
     LocMap specific test helpers.
  */
-var helpers = require("../../test_helpers/test_helpers");
+var helpers = require('../../test_helpers/test_helpers');
 var Cache = require('../../lib/cache');
 var LocMapUserModel = require('../lib/locMapUserModel');
 
@@ -14,7 +14,7 @@ var _compareCrashReport = function(result, report) {
     if (result.osType === undefined || result.osType !== report.osType) {
         return false;
     }
-    if (typeof result.report !== "object") {
+    if (typeof result.report !== 'object') {
         return false;
     }
     if (JSON.stringify(result.report) !== JSON.stringify(report.report)) {
@@ -34,7 +34,7 @@ module.exports = {
 
     createLocMapUser: function(test, email, deviceId, callback) {
         var that = this;
-        that.api.post(test, "/v1/signup", {'data': {'email': email, 'device_id': deviceId}}, {'status': 200, headers: {'content-type': 'application/json; charset=utf-8'}}, function(res) {
+        that.api.post(test, '/v1/signup', {'data': {'email': email, 'device_id': deviceId}}, {'status': 200, headers: {'content-type': 'application/json; charset=utf-8'}}, function(res) {
             var reply = {};
             try {
                 reply = JSON.parse(res.body);
@@ -47,8 +47,8 @@ module.exports = {
         var cache = new Cache();
         var user = new LocMapUserModel(userId);
         user.getData(function(userData) {
-            test.ok(typeof userData !== "number");
-            cache.cache("locmapuser", userId, user);
+            test.ok(typeof userData !== 'number');
+            cache.cache('locmapuser', userId, user);
             callback(cache);
         });
     },
@@ -70,8 +70,8 @@ module.exports = {
 
     wrongAuthTokenResult: {
         status: 401,
-        headers: {'content-type': "text/html; charset=utf-8"},
-        body: "Authorization token is wrong!"
+        headers: {'content-type': 'text/html; charset=utf-8'},
+        body: 'Authorization token is wrong!'
     },
 
     // Helper method that checks if result matches location (disregarding time).
@@ -79,7 +79,7 @@ module.exports = {
         test.equal(result.lat, location.lat);
         test.equal(result.lon, location.lon);
         test.equal(result.acc, location.acc);
-        test.ok(typeof result.time === "number", "");
+        test.ok(typeof result.time === 'number', '');
     },
 
     // Compare multiple crashreports. Complicated since they can be in any order with timestamps etc.
@@ -88,7 +88,7 @@ module.exports = {
             return false;
         }
         // Each report must exist in the results.
-        for (var i=0; i < reports.length; i++) {
+        for (var i = 0; i < reports.length; i++) {
             var report = reports[i];
             var reportMatch = false;
             for (var key in results) {
@@ -108,17 +108,17 @@ module.exports = {
     create3LocMapUsersWithApnTokens: function(test, api, user1, user2, user3, callback) {
         var that = this;
         var replies = [];
-        that.createLocMapUserApi(test, api, user1, "deviceid1", function(userData1) {
+        that.createLocMapUserApi(test, api, user1, 'deviceid1', function(userData1) {
             replies.push(userData1);
-            that.createLocMapUserApi(test, api, user2, "deviceid2", function(userData2) {
+            that.createLocMapUserApi(test, api, user2, 'deviceid2', function(userData2) {
                 replies.push(userData2);
-                that.createLocMapUserApi(test, api, user3, "deviceid3", function(userData3) {
+                that.createLocMapUserApi(test, api, user3, 'deviceid3', function(userData3) {
                     replies.push(userData3);
-                    api.setUserApnToken(userData1.id, "token1", function(status, res) {
+                    api.setUserApnToken(userData1.id, 'token1', function(status, res) {
                         test.equal(status, 200);
-                        api.setUserApnToken(userData2.id, "token2", function(status, res) {
+                        api.setUserApnToken(userData2.id, 'token2', function(status, res) {
                             test.equal(status, 200);
-                            api.setUserApnToken(userData3.id, "token3", function(status, res) {
+                            api.setUserApnToken(userData3.id, 'token3', function(status, res) {
                                 test.equal(status, 200);
                                 callback(replies);
                             });

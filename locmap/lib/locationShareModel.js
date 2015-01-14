@@ -10,9 +10,9 @@ var locMapCommon = require('./locMapCommon');
 var LocMapCommon = new locMapCommon();
 var LocMapConfig = require('./locMapConfig');
 
-var LocMapUserPrefix = "locmapsharemodel:";
+var LocMapUserPrefix = 'locmapsharemodel:';
 
-var jsonFields = ["canSeeMe", "ICanSee", "ignored"] // List of model fields that are JSON encoded.
+var jsonFields = ['canSeeMe', 'ICanSee', 'ignored']; // List of model fields that are JSON encoded.
 
 var LocMapSharingModel = function(userId) {
     this.data = {
@@ -22,7 +22,7 @@ var LocMapSharingModel = function(userId) {
         ignored: []
     };
 
-    this._serializeData = function (data) {
+    this._serializeData = function(data) {
         var newData = {};
         for (var key in data) {
             if (data.hasOwnProperty(key)) {
@@ -39,9 +39,9 @@ var LocMapSharingModel = function(userId) {
         return newData;
     };
 
-    this.getData = function (callback) {
+    this.getData = function(callback) {
         var currentUser = this;
-        db.hgetall(LocMapUserPrefix + this.data.userId, function (error, result) {
+        db.hgetall(LocMapUserPrefix + this.data.userId, function(error, result) {
             if (result) { // Convert Data to JSON object. result = this._deserializeData(result);
                 for (var key in result) {
                     try {
@@ -64,7 +64,7 @@ var LocMapSharingModel = function(userId) {
         });
     };
 
-    this.setData = function (callback, data) {
+    this.setData = function(callback, data) {
         var currentUser = this;
         if (data !== null) {
             for (var key in data) {
@@ -75,10 +75,10 @@ var LocMapSharingModel = function(userId) {
         }
 
         var serializedData = currentUser._serializeData(currentUser.data);
-        db.hmset(LocMapUserPrefix + currentUser.data.userId, serializedData, function (error, result) {
+        db.hmset(LocMapUserPrefix + currentUser.data.userId, serializedData, function(error, result) {
             if (error) {
                 result = 400;
-                console.log("Error setting user data: " + error);
+                console.log('Error setting user data: ' + error);
             }
             else {
                 currentUser.exists = true;
@@ -90,12 +90,12 @@ var LocMapSharingModel = function(userId) {
     this.allowOtherUser = function(otherUserId, callback) {
         var currentUser = this;
         if (!currentUser.exists) {
-            console.log("Setting allowOtherUser to uninitialized locationShare! Id: " + currentUser.data.userId);
+            console.log('Setting allowOtherUser to uninitialized locationShare! Id: ' + currentUser.data.userId);
             callback(400);
             return;
         }
         if (currentUser.data.canSeeMe.length >= LocMapConfig.maxAllowToSeeCount) {
-            console.log("User " + currentUser.data.userId + " tried to allow other users beyond limit!");
+            console.log('User ' + currentUser.data.userId + ' tried to allow other users beyond limit!');
             callback(403);
             return;
         }
@@ -107,7 +107,7 @@ var LocMapSharingModel = function(userId) {
     this.denyOtherUser = function(otherUserId, callback) {
         var currentUser = this;
         if (!currentUser.exists) {
-            console.log("Setting denyOtherUser to uninitialized locationShare! Id: " + currentUser.data.userId);
+            console.log('Setting denyOtherUser to uninitialized locationShare! Id: ' + currentUser.data.userId);
             callback(400);
             return;
         }
@@ -125,7 +125,7 @@ var LocMapSharingModel = function(userId) {
     this.removeUserICanSee = function(otherUserId, callback) {
         var currentUser = this;
         if (!currentUser.exists) {
-            console.log("Setting addUserICanSee to uninitialized locationShare! Id: " + currentUser.data.userId);
+            console.log('Setting addUserICanSee to uninitialized locationShare! Id: ' + currentUser.data.userId);
             callback(400);
             return;
         }

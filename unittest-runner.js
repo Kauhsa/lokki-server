@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+# !/ usr / bin / env node;
 
 /*
 Copyright (c) 2014-2015 F-Secure

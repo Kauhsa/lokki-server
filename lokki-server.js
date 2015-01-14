@@ -39,24 +39,24 @@ app.use(express.bodyParser());
 app.use(function(req, res, next) {
     // Force browser not to guess type but use content-type exactly.
     // Requires content-type headers to be correctly set.
-    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader('X-Content-Type-Options', 'nosniff');
 
     // Prevent reflected XSS
     // Could have incompatibilities with older browsers. Works on our test phones.
-    res.setHeader("X-XSS-Protection", "1, mode=block");
+    res.setHeader('X-XSS-Protection', '1, mode=block');
 
     // Prevents showing data in a frame
-    res.setHeader("X-Frame-Options", "Deny");
+    res.setHeader('X-Frame-Options', 'Deny');
 
     return next();
 });
 
 // Security headers for /api (JSON-related)
-app.use("/api", function(req, res, next) {
+app.use('/api', function(req, res, next) {
     // Browser shows reply as downloadable instead of injecting into page.
-    res.setHeader("Content-Disposition", 'attachment; filename="json-response.txt');
+    res.setHeader('Content-Disposition', 'attachment; filename="json-response.txt');
     return next();
-})
+});
 
 var inProduction = process.env.PORT || false;
 if (inProduction) {
@@ -74,13 +74,13 @@ if (inProduction) {
 //app.use('/files/', express.static('./files'));
 
 // Root site
-app.get('/', function (req, res) {
+app.get('/', function(req, res) {
     res.send('Welcome to Lokki!<br/><br/>');
 });
 
 
 // Loader.io verification site
-app.get('/loaderio-710d023d2917f19101bd5b71de132345', function (req, res) {
+app.get('/loaderio-710d023d2917f19101bd5b71de132345', function(req, res) {
     res.send('loaderio-710d023d2917f19101bd5b71de132345');
 });
 
@@ -101,8 +101,8 @@ if (require.main === module) {
     if (process.argv.length > 2) {
         port = +process.argv[2];
     }
-    app.listen(port, function () {
-        console.log("Lokki-Server listening on " + port + "\n");
+    app.listen(port, function() {
+        console.log('Lokki-Server listening on ' + port + '\n');
 
         // Test against exceptions
         //NON_EXISTING_FUNCTION_TO_MAKE_NODE_CRASH();
@@ -133,7 +133,7 @@ if (require.main === module) {
                     //console.log("DEBUG: NOTIF Sent " + result + " visible notifications.");
                 }
             });
-        }, LocMapConfig.notificationCheckPollingInterval*1000);
+        }, LocMapConfig.notificationCheckPollingInterval * 1000);
 
         /* DISABLED TO PREVENT SERVER CRASHES .. current implementation takes too much resources because all users are looped through
         // Run interval notifications method in configured intervals.

@@ -5,9 +5,9 @@ See LICENSE for details
 var GCM = require('gcm').GCM;
 
 /// Implementation of google messaging service for Android
-var LocMapGoogleCloudMessagingService = function () {
+var LocMapGoogleCloudMessagingService = function() {
     this.notifications = {};// we just store notifications here if not in production. key is token, value is array of messages for this token
-    this.gcm = new GCM("AIzaSyBoebawHMikB1pYALYz4k9ELCorM232RDk");
+    this.gcm = new GCM('AIzaSyBoebawHMikB1pYALYz4k9ELCorM232RDk');
 
 };
 
@@ -31,13 +31,13 @@ LocMapGoogleCloudMessagingService.prototype.pushNotification = function(deviceTo
         'data.message': notificationText
     };
     if (payload) {
-        message["data.payload"] = JSON.stringify(payload);
+        message['data.payload'] = JSON.stringify(payload);
     }
 
     //console.log("GCM Send for device: " + deviceToken);
-    this.gcm.send(message, function(err, messageId){
+    this.gcm.send(message, function(err, messageId) {
         if (err) {
-            console.log("GoogleCloudMessagingService send error: " + err);
+            console.log('GoogleCloudMessagingService send error: ' + err);
         } else {
             //console.log("GoogleCloudMessagingService sent message ID: ", messageId);
         }

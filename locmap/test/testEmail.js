@@ -5,17 +5,17 @@ See LICENSE for details
 /*
  Test file: User API methods
  */
-var locMapEmail = require("../lib/email");
+var locMapEmail = require('../lib/email');
 var LocMapEmail = undefined;
 var I18N = require('../../lib/i18n');
 var i18n = new I18N();
 
-var noReply = "no-reply@example.com";
-var targetUser = "targetuser@example.com";
-var senderUser = "senderuser@example.com";
+var noReply = 'no-reply@example.com';
+var targetUser = 'targetuser@example.com';
+var senderUser = 'senderuser@example.com';
 
 module.exports = {
-    setUp: function (callback) {
+    setUp: function(callback) {
         LocMapEmail = new locMapEmail();
         callback();
     },
@@ -26,33 +26,33 @@ module.exports = {
             test.ok(result);
             test.equal(LocMapEmail.emails.length, 1);
             test.deepEqual(LocMapEmail.emails[0], {to: targetUser, from: noReply,
-                subject: i18n.getLocalizedString('en-US', "signup.userEmailSubject"),
-                text: i18n.getLocalizedString('en-US', "signup.userEmailText")});
+                subject: i18n.getLocalizedString('en-US', 'signup.userEmailSubject'),
+                text: i18n.getLocalizedString('en-US', 'signup.userEmailText')});
             test.done();
         });
     },
 
     testInviteEmailSend: function(test) {
         test.expect(3);
-        LocMapEmail.sendInviteEmail(targetUser, senderUser, "en-US", function(result) {
+        LocMapEmail.sendInviteEmail(targetUser, senderUser, 'en-US', function(result) {
             test.ok(result);
             test.equal(LocMapEmail.emails.length, 1);
             test.deepEqual(LocMapEmail.emails[0], {to: targetUser, from: noReply,
-                subject: i18n.getLocalizedString('en-US', "invite.userInvitedToLokkiEmailSubject"),
-                text: i18n.getLocalizedString('en-US', "invite.userInvitedToLokkiEmailText", "targetUser", targetUser, "senderUser", senderUser)});
+                subject: i18n.getLocalizedString('en-US', 'invite.userInvitedToLokkiEmailSubject'),
+                text: i18n.getLocalizedString('en-US', 'invite.userInvitedToLokkiEmailText', 'targetUser', targetUser, 'senderUser', senderUser)});
             test.done();
         });
     },
 
     testResetEmailSend: function(test) {
         test.expect(3);
-        var resetLink = "https://lokki-server.example.com/api/reset/deadbeef";
-        LocMapEmail.sendResetEmail(targetUser, resetLink, "en-US", function(result) {
+        var resetLink = 'https://lokki-server.example.com/api/reset/deadbeef';
+        LocMapEmail.sendResetEmail(targetUser, resetLink, 'en-US', function(result) {
             test.ok(result);
             test.equal(LocMapEmail.emails.length, 1);
             test.deepEqual(LocMapEmail.emails[0], {to: targetUser, from: noReply,
-                subject: i18n.getLocalizedString('en-US', "reset.emailSubject"),
-                text: i18n.getLocalizedString('en-US', "reset.emailText", "resetLink", resetLink)});
+                subject: i18n.getLocalizedString('en-US', 'reset.emailSubject'),
+                text: i18n.getLocalizedString('en-US', 'reset.emailText', 'resetLink', resetLink)});
             test.done();
         });
     }
