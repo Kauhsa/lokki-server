@@ -2,11 +2,14 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 var db = require('../../lib/db');
 var LocMapConfig = require('./locMapConfig');
 var LocMapUserModel = require('./locMapUserModel');
-var locMapCommon = require('./locMapCommon');
-var LocMapCommon = new locMapCommon();
+var LocMapCommon = require('./locMapCommon');
+var locMapCommon = new LocMapCommon();
 
 var lockDBKey = 'intervalNotificationsLock';
 
@@ -20,11 +23,11 @@ var IntervalNotifications = function() {
             // Only visible users should get notified.
             if (user.data.visibility) {
                 // Users have not updated their location recently.
-                if (LocMapCommon.isLocationTimedout(user.data.location, LocMapConfig.backgroundNotificationLocationAgeLimit)) {
+                if (locMapCommon.isLocationTimedout(user.data.location, LocMapConfig.backgroundNotificationLocationAgeLimit)) {
                     // User has accessed their dashboard recently.
                     if (user.data.lastDashboardAccess >= Date.now() - (LocMapConfig.backgroundNotificationUserActivityAgeLimit * 1000)) {
                         // APN and GCM users should get notified. WP8 client is not currently using notifications.
-                        if (user.data.apnToken ||  user.data.gcmToken) {
+                        if (user.data.apnToken || user.data.gcmToken) {
                             return 0;
                         } else {
                             return 5;
@@ -46,8 +49,8 @@ var IntervalNotifications = function() {
     this._processUser = function(user, callback) {
         var shouldReceive = intervalNotifications._userShouldReceiveNotification(user);
         if (shouldReceive === 0) {
-            //TODO Could be optimized further by checking if user has contacts.
-            user.sendNotLocalizedPushNotification('', undefined, true, false, function(result) {
+            // TODO Could be optimized further by checking if user has contacts.
+            user.sendNotLocalizedPushNotification('', undefined, true, false, function() {
                 callback(shouldReceive);
             });
         } else {
@@ -64,23 +67,23 @@ var IntervalNotifications = function() {
             callback(notifyResults);
         }
 
+        function processUser(user) {
+            user.getData(function() {
+                intervalNotifications._processUser(user, function(notifyResult) {
+                    notifyResults[notifyResult] += 1;
+                    counter--;
+                    user = null; // Preventing memory leaks.
+                    if (counter < 1) {
+                        return callback(notifyResults);
+                    }
+                });
+            });
+        }
+
         for (var u in users) {
             var userId = users[u];
             userId = userId.replace('locmapusers:', '');
-
-            // Closure because looping with callbacks is terrible.
-            (function(user) {
-                user.getData(function(result) {
-                    intervalNotifications._processUser(user, function(notifyResult) {
-                        notifyResults[notifyResult] += 1;
-                        counter--;
-                        user = null; // Preventing memory leaks.
-                        if (counter < 1) {
-                            return callback(notifyResults);
-                        }
-                    });
-                });
-            })(new LocMapUserModel(userId));
+            processUser(new LocMapUserModel(userId));
         }
     };
 
@@ -92,7 +95,7 @@ var IntervalNotifications = function() {
         // Acquire lock for interval notification. Prevents multiple processes/threads from running this at the same time.
         db.set(lockDBKey, 'lockvalue', 'NX', 'EX', LocMapConfig.backgroundNotificationInterval, function(error, result) {
             if (result === 'OK') {
-                //console.log("DEBUG: INTERVALNOTIF: Acquired lock.");
+                // console.log("DEBUG: INTERVALNOTIF: Acquired lock.");
                 var userCount = 0;
                 db.keys('locmapusers:*', function(err, users) {
                     if (err) {
@@ -107,7 +110,7 @@ var IntervalNotifications = function() {
                     }
                 });
             } else {
-                //console.log("DEBUG: INTERVALNOTIF: Failed to acquire lock.");
+                // console.log("DEBUG: INTERVALNOTIF: Failed to acquire lock.");
                 callback(undefined);
             }
         });

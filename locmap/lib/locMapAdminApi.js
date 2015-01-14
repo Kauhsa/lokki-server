@@ -2,13 +2,16 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 var LocMapUserModel = require('./locMapUserModel');
 var LocMapSharingModel = require('./locationShareModel');
-var locMapCrashReports = require('./crashReports');
-var LocMapCrashReports = new locMapCrashReports();
+var LocMapCrashReports = require('./crashReports');
+var locMapCrashReports = new LocMapCrashReports();
 var LocMapConfig = require('./locMapConfig');
-var locMapCommon = require('./locMapCommon');
-var LocMapCommon = new locMapCommon();
+var LocMapCommon = require('./locMapCommon');
+var locMapCommon = new LocMapCommon();
 var db = require('../../lib/db');
 
 var check = require('validator').check;
@@ -20,13 +23,13 @@ var LocMapAdminApi = function() {
         if (osType !== 'android' && osType !== 'ios' && osType !== 'wp') {
             callback(400, 'Invalid os type.');
         }
-        LocMapCrashReports.getMonth(osType, year, month, function(status, result) {
+        locMapCrashReports.getMonth(osType, year, month, function(status, result) {
             callback(status, result);
         });
     };
 
     this.adminSetAccountToRecoveryMode = function(emailObj, callback) {
-        if (typeof emailObj !== 'object' ||   typeof emailObj.email !== 'string') {
+        if (typeof emailObj !== 'object' || typeof emailObj.email !== 'string') {
             callback(400);
             return;
         }
@@ -38,18 +41,18 @@ var LocMapAdminApi = function() {
             callback(400);
             return;
         }
-        if (LocMapConfig.adminAccountRecoveryAllowedEmails.indexOf(targetEmail) == -1) {
+        if (LocMapConfig.adminAccountRecoveryAllowedEmails.indexOf(targetEmail) === -1) {
             console.log('Admin account recovery mode attempted on non-allowed email: ' + targetEmail);
             callback(401);
             return;
         }
-        var userId = LocMapCommon.getSaltedHashedId(targetEmail);
+        var userId = locMapCommon.getSaltedHashedId(targetEmail);
         var user = new LocMapUserModel(userId);
-        user.getData(function(userData) {
+        user.getData(function() {
             if (user.exists) {
                 user.setAccountRecoveryMode(Date.now(), function(result) {
                     console.log('Admin setting account ' + targetEmail + ' to account recovery mode.');
-                    callback(LocMapCommon.statusFromResult(result), result);
+                    callback(locMapCommon.statusFromResult(result), result);
                 });
             } else {
                 callback(404);
@@ -104,13 +107,13 @@ var LocMapAdminApi = function() {
 
         var lastDashBoardAccessDaysAgo = 'never';
         if (user.data.lastDashboardAccess) {
-            var lastDashBoardAccessDaysAgo = this._timestampDaysAgo(user.data.lastDashboardAccess);
+            lastDashBoardAccessDaysAgo = this._timestampDaysAgo(user.data.lastDashboardAccess);
         }
         stats.userDashboardAccessSince[lastDashBoardAccessDaysAgo] += 1;
 
         var lastReportedDaysAgo = 'never';
         if (user.data.location && user.data.location.time) {
-            var lastReportedDaysAgo = this._timestampDaysAgo(user.data.location.time);
+            lastReportedDaysAgo = this._timestampDaysAgo(user.data.location.time);
         }
         stats.userLocationUpdatedSince[lastReportedDaysAgo] += 1;
         return;
@@ -118,13 +121,13 @@ var LocMapAdminApi = function() {
 
     this._addUserShareStats = function(userShare, stats) {
         if (!userShare.exists) {
-            stats.contactsPerActivatedUser['never'] += 1;
+            stats.contactsPerActivatedUser.never += 1;
             return;
         }
 
         var contactCount = userShare.data.canSeeMe.length;
         if (contactCount > 20) {
-            stats.contactsPerActivatedUser['more'] += 1;
+            stats.contactsPerActivatedUser.more += 1;
         } else {
             stats.contactsPerActivatedUser[contactCount] += 1;
         }
@@ -137,20 +140,20 @@ var LocMapAdminApi = function() {
             callback();
         }
 
+        function addUserShareStats(userShare) {
+            userShare.getData(function() {
+                locMapAdminApi._addUserShareStats(userShare, stats);
+                counter--;
+                if (counter < 1) {
+                    return callback();
+                }
+            });
+        }
+
         for (var u in users) {
             var userId = users[u];
             userId = userId.replace('locmapusers:', '');
-
-            // put user into closure
-            (function(userShare) {
-                userShare.getData(function(result) {
-                    locMapAdminApi._addUserShareStats(userShare, stats);
-                    counter--;
-                    if (counter < 1) {
-                        return callback();
-                    }
-                });
-            })(new LocMapSharingModel(userId));
+            addUserShareStats(new LocMapSharingModel(userId));
         }
     };
 
@@ -162,26 +165,28 @@ var LocMapAdminApi = function() {
             callback();
         }
 
+        function addUserStats(user) {
+           user.getData(function() {
+                locMapAdminApi._addUserStats(user, stats);
+                counter--;
+                user = null; // Preventing memory leaks.
+                if (counter < 1) {
+                    return callback();
+                }
+            });
+        }
+
         for (var u in users) {
             var userId = users[u];
             userId = userId.replace('locmapusers:', '');
 
             // put user into closure
-            (function(user) {
-                user.getData(function(result) {
-                    locMapAdminApi._addUserStats(user, stats);
-                    counter--;
-                    user = null; // Preventing memory leaks.
-                    if (counter < 1) {
-                        return callback();
-                    }
-                });
-            })(new LocMapUserModel(userId));
+            addUserStats(new LocMapUserModel(userId));
         }
     };
 
     this.adminGetStats = function(callback) {
-        var statsStruct = LocMapCommon.getDefaultStatsDict();
+        var statsStruct = locMapCommon.getDefaultStatsDict();
         db.keys('locmapusers:*', function(err, users) {
             if (err) {
                 console.log('Failed to get locmap users from db.');

@@ -2,14 +2,18 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 /*
     Upkeep method that goes through the stored pending notifications in Redis
     and checks if user needs to be polled with a visible notification.
  */
+
 var db = require('../../lib/db');
 var LocMapConfig = require('./locMapConfig');
-var pendingNotifications = require('./pendingNotifications');
-var PendingNotifications = new pendingNotifications();
+var PendingNotifications = require('./pendingNotifications');
+var pendingNotifications = new PendingNotifications();
 var LocMapUserModel = require('./locMapUserModel');
 
 var lockDBKey = 'pendingNotificationCheckLock';
@@ -19,7 +23,7 @@ var checkNotifications = function() {
 
     this._checkAndNotifyUser = function(userId, notificationTime, callback) {
         var user = new LocMapUserModel(userId);
-        user.getData(function(userData) {
+        user.getData(function() {
             if (user.exists) {
                 var recentLocationUpdate = false;
                 var recentVisibleNotification = false;
@@ -35,7 +39,7 @@ var checkNotifications = function() {
                 // Check if user has received a visible notification recently.
                 if (typeof user.data.lastVisibleNotification === 'number') {
                     var now = Date.now();
-                    //console.log("Comparison: " + (user.data.lastVisibleNotification + LocMapConfig.visibleNotificationLimit*1000) + " now: " + now);
+                    // console.log("Comparison: " + (user.data.lastVisibleNotification + LocMapConfig.visibleNotificationLimit*1000) + " now: " + now);
 
                     if (user.data.lastVisibleNotification + LocMapConfig.visibleNotificationLimit * 1000 >= now) {
                         recentVisibleNotification = true;
@@ -54,7 +58,7 @@ var checkNotifications = function() {
 
                 // Send notification if users location has not updated recently, or they have not been sent a notification rencently.
                 if (!recentLocationUpdate && !recentVisibleNotification && hasCorrectDevice && isVisible) {
-                    user.sendLocalizedPushNotification('notify.friendLocationRequestLokkiStart', function(res) {
+                    user.sendLocalizedPushNotification('notify.friendLocationRequestLokkiStart', function() {
                         console.log('Visible notification sent to user ' + user.data.userId);
                         callback(true);
                     });
@@ -87,39 +91,36 @@ var checkNotifications = function() {
         // Acquire lock for the check. This prevents multiple instances from doing the upkeep simultaneously.
         db.set(lockDBKey, 'anyvalue', 'NX', 'EX', LocMapConfig.notificationCheckPollingInterval, function(error, result) {
             if (result === 'OK') {
-                //console.log("DEBUG: CHECKNOTIF: Acquired upkeep lock.");
-                PendingNotifications.getTimedOutNotifications(LocMapConfig.pendingNotificationTimeout, function(notifications) {
+                // console.log("DEBUG: CHECKNOTIF: Acquired upkeep lock.");
+                pendingNotifications.getTimedOutNotifications(LocMapConfig.pendingNotificationTimeout, function(notifications) {
                     if (notifications.length > 0) {
                         var cleanNotifications = checkNotify._cleanNotifications(notifications);
                         var count = 0;
                         var notifyCount = 0;
+
+                        var notifiedCallback = function(notified) {
+                            if (notified) {
+                                notifyCount++;
+                            }
+                            count++;
+                            if (count >= cleanNotifications.length) {
+                                console.log('CheckNotifications sent ' + notifyCount + ' visible notifications. Checked ' + cleanNotifications.length + ' pending notifications. Dropped ' + (notifications.length - cleanNotifications.length) + ' duplicates.');
+                                if (callback) {
+                                    callback(notifyCount);
+                                }
+                            }
+                        };
+
                         for (var i = 0; i < cleanNotifications.length; i++) {
                             var notification = cleanNotifications[i];
-                            checkNotify._checkAndNotifyUser(notification.userId, notification.timestamp, function(notified) {
-                                if (notified) {
-                                    notifyCount++;
-                                }
-                                count++;
-                                if (count >= cleanNotifications.length) {
-                                    console.log('CheckNotifications sent ' + notifyCount + ' visible notifications. Checked ' + cleanNotifications.length + ' pending notifications. Dropped ' + (notifications.length - cleanNotifications.length) + ' duplicates.');
-                                    if (callback) {
-                                        callback(notifyCount);
-                                    }
-                                }
-                            });
+                            checkNotify._checkAndNotifyUser(notification.userId, notification.timestamp, notifiedCallback);
                         }
-                    } else {
-                        //console.log("DEBUG: CHECKNOTIF: No timed out notifications to check.");
-                        if (callback) {
-                            callback(0);
-                        }
+                    } else if (callback) {
+                        callback(0);
                     }
                 });
-            } else {
-                //console.log("DEBUG: CHECKNOTIF: Failed to acquire upkeep lock.");
-                if (callback) {
-                    callback(undefined);
-                }
+            } else if (callback) {
+                callback(undefined);
             }
         });
     };

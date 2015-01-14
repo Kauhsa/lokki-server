@@ -2,9 +2,13 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 /*
  Locmap location sharing models.
  */
+
 var db = require('../../lib/db');
 
 var crashReportPrefix = 'locmapcrash:';
@@ -24,7 +28,7 @@ var CrashReports = function() {
             osType: osType,
             report: reportObject
         };
-        db.hset(key, field, JSON.stringify(data), function(error, result) {
+        db.hset(key, field, JSON.stringify(data), function(error) {
             if (error) {
                 callback(400, 'Database write failed');
             } else {
@@ -40,24 +44,22 @@ var CrashReports = function() {
             if (result) {
                 for (var key in result) {
                     if (result.hasOwnProperty(key)) {
-                        if (result[key] != null && result[key] != undefined) {
+                        if (result.key !== null && result.key !== undefined) {
                             var item = JSON.parse(result[key]);
                             // Attempt to convert timestamp to human readable format.
-                            var date = new Date(item['timestamp']);
+                            var date = new Date(item.timestamp);
                             var isoStamp = date.toISOString();
-                            item['timestamp'] = isoStamp;
+                            item.timestamp = isoStamp;
                             reports[isoStamp + ' ' + key] = item;
                         }
                     }
                 }
                 callback(200, reports);
-            }
-            else {
+            } else {
                 callback(404, 'Not found');
             }
         });
     };
-
 };
 
 module.exports = CrashReports;

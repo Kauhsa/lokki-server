@@ -2,13 +2,16 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 /*
  LocMap config.
 
  */
 
-var inDeployment = process.env.PORT ||  false;
-var inStaging = process.env.NODE_ENV == 'staging';
+var inDeployment = process.env.PORT || false;
+var inStaging = process.env.NODE_ENV === 'staging';
 
 // Default production configuration values.
 var locMapConfig = {

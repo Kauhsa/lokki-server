@@ -2,6 +2,9 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 /*
     Helper methods for appending new entries to pending notifications list and checking and removing them.
  */
@@ -11,19 +14,19 @@ var pendingNotificationsDBKey = 'pendingNotificationsList';
 
 // Verify the notification result and return de-JSONized object if we got a valid one, null otherwise.
 var verifyResult = function(result) {
-    //console.log("Res: " + JSON.stringify(result));
+    // console.log("Res: " + JSON.stringify(result));
     var entry = null;
     // Getting range results in a list containing JSONized object, popping does not have a list.
-    if (typeof result === 'object' && result.length == 1) {
-        var entry = result[0];
+    if (typeof result === 'object' && result.length === 1) {
+        entry = result[0];
     } else if (typeof result === 'string') {
-        var entry = result;
+        entry = result;
     }
     if (entry !== null) {
         try {
             entry = JSON.parse(entry);
-            //console.log("JSON parse ok.");
-            //console.log("ts " + entry["timestamp"] + " uid " + entry["userId"]);
+            // console.log("JSON parse ok.");
+            // console.log("ts " + entry["timestamp"] + " uid " + entry["userId"]);
             if (typeof entry === 'object' && entry.hasOwnProperty('timestamp') && entry.hasOwnProperty('userId')) {
                 return entry;
             }
@@ -31,7 +34,7 @@ var verifyResult = function(result) {
             console.log('ERROR: Pending notification JSON parse failed.');
         }
     }
-    //console.log("DEBUG VERIFYRESULT No result or invalid result");
+    // console.log("DEBUG VERIFYRESULT No result or invalid result");
     return null;
 };
 
@@ -43,7 +46,7 @@ var pendingNotifications = function() {
         // New notifications are put to the beginning of the Redis list.
         var notificationObject = {timestamp: Date.now(), userId: userId};
         db.lpush(pendingNotificationsDBKey, JSON.stringify(notificationObject), function(error, result) {
-            if (error ||  result < 1) {
+            if (error || result < 1) {
                 callback(false);
             } else {
                 callback(true);
@@ -63,15 +66,15 @@ var pendingNotifications = function() {
                 if (res !== null) {
                     // Check timestamp.
                     var now = Date.now();
-                    if (res['timestamp'] + timeout * 1000 < now) {
-                        db.rpop(pendingNotificationsDBKey, function(error, popResult) {
+                    if (res.timestamp + timeout * 1000 < now) {
+                        db.rpop(pendingNotificationsDBKey, function(error2, popResult) {
                             if (error) {
-                                console.log('ERROR: Failed to pop the last key on pending notifications list with error ' + error);
+                                console.log('ERROR: Failed to pop the last key on pending notifications list with error ' + error2);
                                 callback(undefined);
                             } else {
                                 var popRes = verifyResult(popResult);
                                 if (popRes !== null) {
-                                    if (popRes['timestamp'] + timeout * 1000 < now) {
+                                    if (popRes.timestamp + timeout * 1000 < now) {
                                         callback(popRes);
                                     } else {
                                         console.log('ERROR: Pending notification entry had too new timestamp, discarding.');
@@ -84,11 +87,11 @@ var pendingNotifications = function() {
                             }
                         });
                     } else {
-                        //console.log("DEBUG CHECKLATESTNOTIF Timeout not passed for " + JSON.stringify(res));
+                        // console.log("DEBUG CHECKLATESTNOTIF Timeout not passed for " + JSON.stringify(res));
                         callback(null);
                     }
                 } else {
-                    //console.log("Verify result failed, null");
+                    // console.log("Verify result failed, null");
                     callback(null);
                 }
             }
@@ -112,7 +115,7 @@ var pendingNotifications = function() {
     // NOTE: Is not thread safe, don't use simultaneously from multiple threads/processes!
     this.getTimedOutNotifications = function(timeout, callback) {
         var results = [];
-        pendingNotif._checkNotificationsLoop(timeout, results, function(res) {
+        pendingNotif._checkNotificationsLoop(timeout, results, function() {
             callback(results);
         });
     };

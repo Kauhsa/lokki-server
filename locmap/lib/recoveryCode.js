@@ -2,6 +2,9 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 /*
  Recovery code API methods
 
@@ -61,7 +64,7 @@ var RecoveryCode = function(userId) {
         });
     };
 
-    ////TODO TODO FIXME Use simpler method.
+    // TODO TODO FIXME Use simpler method.
     // Ascii: 65-90 = A-Z
     this._getRandomCapitalLetter = function() {
         var code = Math.floor(Math.random() * (90 - 65 + 1) + 65);

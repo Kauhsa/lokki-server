@@ -2,6 +2,9 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 /*
     Common functions needed by locmap.
  */
@@ -18,7 +21,7 @@ var LocMapCommon = function() {
         return userId;
     };
 
-    /// If result is a number then returns it as is, if not - returns 200 with result
+    // If result is a number then returns it as is, if not - returns 200 with result
     this.statusFromResult = function(result) {
         var status = ((typeof result === 'number') ? result : 200);
         return status;
@@ -53,7 +56,7 @@ var LocMapCommon = function() {
         if (rawPlace.img !== undefined) {
             newPlace.img = rawPlace.img;
         }
-        if (isNaN(newPlace.lat) || isNaN(newPlace.lon) ||  isNaN(newPlace.rad) ||   typeof newPlace.name !== 'string' ||   typeof newPlace.img !== 'string') {
+        if (isNaN(newPlace.lat) || isNaN(newPlace.lon) || isNaN(newPlace.rad) || typeof newPlace.name !== 'string' || typeof newPlace.img !== 'string') {
             return null;
         } else {
             return newPlace;
@@ -67,7 +70,7 @@ var LocMapCommon = function() {
             acc: parseFloat(rawLocation.acc),
             time: Date.now()
         };
-        if (isNaN(newLocation.lat) ||  isNaN(newLocation.lon) ||  isNaN(newLocation.acc)) {
+        if (isNaN(newLocation.lat) || isNaN(newLocation.lon) || isNaN(newLocation.acc)) {
             return null;
         } else {
             return newLocation;
@@ -87,23 +90,27 @@ var LocMapCommon = function() {
     this.combineListsUnique = function(list1, list2) {
         var tempHashes = {};
         var combinedList = [];
-        for (var i = 0; i < list1.length; i++) {
-            var value = list1[i];
+        var i, value;
+
+        for (i = 0; i < list1.length; i++) {
+            value = list1[i];
             if (!tempHashes.hasOwnProperty(value)) {
                 combinedList.push(value);
             }
         }
-        for (var i = 0; i < list2.length; i++) {
-            var value = list2[i];
+
+        for (i = 0; i < list2.length; i++) {
+            value = list2[i];
             if (!tempHashes.hasOwnProperty(value)) {
                 combinedList.push(value);
             }
         }
+
         return combinedList;
     };
 
     this.removeItemFromArray = function(arr, item) {
-        if (arr != undefined) {
+        if (arr !== undefined) {
             var idx = arr.indexOf(item);
             if (idx !== -1) {
                 arr.splice(idx, 1);
@@ -145,14 +152,14 @@ var LocMapCommon = function() {
             contactsPerActivatedUser: this._createHistogramDict(20),
             userDashboardAccessSince: this._createHistogramDict(31)
         };
-        statsStruct.userLocationUpdatedSince['older'] = 0;
-        statsStruct.userLocationUpdatedSince['never'] = 0;
-        statsStruct.userLocationUpdatedSince['future'] = 0;
-        statsStruct.contactsPerActivatedUser['more'] = 0;
-        statsStruct.contactsPerActivatedUser['never'] = 0;
-        statsStruct.userDashboardAccessSince['older'] = 0;
-        statsStruct.userDashboardAccessSince['never'] = 0;
-        statsStruct.userDashboardAccessSince['future'] = 0;
+        statsStruct.userLocationUpdatedSince.older = 0;
+        statsStruct.userLocationUpdatedSince.never = 0;
+        statsStruct.userLocationUpdatedSince.future = 0;
+        statsStruct.contactsPerActivatedUser.more = 0;
+        statsStruct.contactsPerActivatedUser.never = 0;
+        statsStruct.userDashboardAccessSince.older = 0;
+        statsStruct.userDashboardAccessSince.never = 0;
+        statsStruct.userDashboardAccessSince.future = 0;
         return statsStruct;
     };
 

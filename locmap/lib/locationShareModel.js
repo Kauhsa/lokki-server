@@ -2,12 +2,15 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 /*
  Locmap location sharing models.
  */
 var db = require('../../lib/db');
-var locMapCommon = require('./locMapCommon');
-var LocMapCommon = new locMapCommon();
+var LocMapCommon = require('./locMapCommon');
+var locMapCommon = new LocMapCommon();
 var LocMapConfig = require('./locMapConfig');
 
 var LocMapUserPrefix = 'locmapsharemodel:';
@@ -28,11 +31,10 @@ var LocMapSharingModel = function(userId) {
             if (data.hasOwnProperty(key)) {
                 newData[key] = data[key];
             }
-            if (jsonFields.indexOf(key) != -1) {
+            if (jsonFields.indexOf(key) !== -1) {
                 try {
                     newData[key] = JSON.stringify(data[key]);
-                }
-                catch (error) {
+                } catch (error) {
                 }
             }
         }
@@ -48,18 +50,16 @@ var LocMapSharingModel = function(userId) {
                         if (jsonFields.indexOf(key) !== -1) {
                             result[key] = JSON.parse(result[key]);
                         }
-                    }
-                    catch (error) {
+                    } catch (error) {
                     }
                 }
-                result['userId'] = currentUser.data.userId;
+                result.userId = currentUser.data.userId;
                 currentUser.data = result;
                 currentUser.exists = true;
-            }
-            else {
+            } else {
                 result = 404;
                 currentUser.exists = false;
-            } // Return NOT found code.}
+            }
             callback(result);
         });
     };
@@ -79,8 +79,7 @@ var LocMapSharingModel = function(userId) {
             if (error) {
                 result = 400;
                 console.log('Error setting user data: ' + error);
-            }
-            else {
+            } else {
                 currentUser.exists = true;
             }
             callback(result);
@@ -100,7 +99,7 @@ var LocMapSharingModel = function(userId) {
             return;
         }
 
-        currentUser.data.canSeeMe = LocMapCommon.addUniqueItemToArray(currentUser.data.canSeeMe, otherUserId);
+        currentUser.data.canSeeMe = locMapCommon.addUniqueItemToArray(currentUser.data.canSeeMe, otherUserId);
         currentUser.setData(callback, null);
     };
 
@@ -111,14 +110,14 @@ var LocMapSharingModel = function(userId) {
             callback(400);
             return;
         }
-        currentUser.data.canSeeMe = LocMapCommon.removeItemFromArray(currentUser.data.canSeeMe, otherUserId);
+        currentUser.data.canSeeMe = locMapCommon.removeItemFromArray(currentUser.data.canSeeMe, otherUserId);
         currentUser.setData(callback, null);
     };
 
     this.addUserICanSee = function(otherUserId, callback) {
         var currentUser = this;
 
-        currentUser.data.ICanSee = LocMapCommon.addUniqueItemToArray(currentUser.data.ICanSee, otherUserId);
+        currentUser.data.ICanSee = locMapCommon.addUniqueItemToArray(currentUser.data.ICanSee, otherUserId);
         currentUser.setData(callback, null);
     };
 
@@ -130,7 +129,7 @@ var LocMapSharingModel = function(userId) {
             return;
         }
 
-        currentUser.data.ICanSee = LocMapCommon.removeItemFromArray(currentUser.data.ICanSee, otherUserId);
+        currentUser.data.ICanSee = locMapCommon.removeItemFromArray(currentUser.data.ICanSee, otherUserId);
         currentUser.setData(callback, null);
     };
 

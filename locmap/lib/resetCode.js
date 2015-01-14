@@ -2,6 +2,9 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 /*
  Recovery code API methods
 
@@ -11,8 +14,8 @@ See LICENSE for details
  */
 var db = require('../../lib/db');
 var LocMapConfig = require('./locMapConfig');
-var locMapCommon = require('./locMapCommon');
-var LocMapCommon = new locMapCommon();
+var LocMapCommon = require('./locMapCommon');
+var locMapCommon = new LocMapCommon();
 
 var modelPrefix = 'locmapresetcode:';
 
@@ -33,7 +36,6 @@ var ResetCode = function() {
     };
 
     this.removeResetCode = function(resetCode, callback) {
-        var that = this;
         db.del(modelPrefix + resetCode, function(error, result) {
             if (error) {
                 result = -1;
@@ -43,7 +45,7 @@ var ResetCode = function() {
     };
 
     this.createResetCode = function(userId, callback) {
-        var resetCode = LocMapCommon.generateResetToken();
+        var resetCode = locMapCommon.generateResetToken();
         var data = {resetCode: resetCode, userId: userId};
         var serializedData = this._serializeData(data);
         db.setex(modelPrefix + resetCode, LocMapConfig.resetCodeTimeout, serializedData, function(error, result) {

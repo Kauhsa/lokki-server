@@ -2,9 +2,12 @@
 Copyright (c) 2014-2015 F-Secure
 See LICENSE for details
 */
+
+'use strict';
+
 var GCM = require('gcm').GCM;
 
-/// Implementation of google messaging service for Android
+// Implementation of google messaging service for Android
 var LocMapGoogleCloudMessagingService = function() {
     this.notifications = {};// we just store notifications here if not in production. key is token, value is array of messages for this token
     this.gcm = new GCM('AIzaSyBoebawHMikB1pYALYz4k9ELCorM232RDk');
@@ -26,20 +29,18 @@ LocMapGoogleCloudMessagingService.prototype.pushNotification = function(deviceTo
     }
 
     var message = {
-        registration_id: deviceToken, // required
-        collapse_key: 'Message',
+        'registration_id': deviceToken, // required
+        'collapse_key': 'Message',
         'data.message': notificationText
     };
     if (payload) {
         message['data.payload'] = JSON.stringify(payload);
     }
 
-    //console.log("GCM Send for device: " + deviceToken);
-    this.gcm.send(message, function(err, messageId) {
+    // console.log("GCM Send for device: " + deviceToken);
+    this.gcm.send(message, function(err) {
         if (err) {
             console.log('GoogleCloudMessagingService send error: ' + err);
-        } else {
-            //console.log("GoogleCloudMessagingService sent message ID: ", messageId);
         }
     });
 
